@@ -105,8 +105,8 @@ export default function LoginPage() {
           className="w-full max-w-md"
         >
           {/* Logo */}
-          <div className="mb-8 flex justify-center">
-            <AetherisLogo className="h-16 w-auto" style={{ filter: "drop-shadow(0 0 30px var(--accent))" }} />
+          <div className="mb-8 flex justify-center" style={{ filter: "drop-shadow(0 0 30px var(--accent))" }}>
+            <AetherisLogo className="h-16 w-auto" />
           </div>
 
           {/* Title */}
