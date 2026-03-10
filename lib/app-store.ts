@@ -436,7 +436,7 @@ const parseLocalWorkspace = (raw: string | null): Partial<WorkspaceSnapshot> | n
   }
 };
 
-let cloudSaveTimeout: ReturnType<typeof setTimeout> | null = null;
+let cloudSaveTimeout: ReturnType<typeof window.setTimeout> | null = null;
 let isHydratingWorkspace = false;
 
 const queueCloudWorkspaceSave = (userId: string, workspace: WorkspaceSnapshot) => {
