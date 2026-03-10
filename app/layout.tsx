@@ -6,6 +6,7 @@ import { ThemeDecor } from "@/components/theme-decor";
 import { IntroAnimation } from "@/components/intro-animation";
 import { AuthWrapper } from "@/components/auth-wrapper";
 import { LayoutWrapper } from "@/components/layout-wrapper";
+import { Analytics } from "@vercel/analytics/next";
 
 const sora = Sora({
   variable: "--font-display",
@@ -36,6 +37,7 @@ export default function RootLayout({
         <AuthWrapper>
           <LayoutWrapper>{children}</LayoutWrapper>
         </AuthWrapper>
+        <Analytics />
       </body>
     </html>
   );
