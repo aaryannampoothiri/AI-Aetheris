@@ -3,6 +3,7 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { getActionReactionMessage, getMascotChosenMessage } from "@/lib/mascot-personalities";
+import { supabase } from "@/lib/supabase";
 
 export type WorkMode = "deep-work" | "planning" | "balanced";
 export type ThemeMode = "light" | "dark" | "system";
@@ -266,6 +267,207 @@ type AppState = {
   clearWellnessReminder: () => void;
 };
 
+type WorkspaceSnapshot = {
+  dailyTasks: DailyTask[];
+  notes: NoteItem[];
+  flashCardTopics: FlashCardTopic[];
+  deadlines: DeadlineItem[];
+  calendarActivities: CalendarActivity[];
+  timeLogs: TimeLogEntry[];
+  suggestions: SuggestionItem[];
+  actionCards: ActionCard[];
+  progressPoints: number[];
+  focusScore: number;
+  wellnessActivities: WellnessActivity[];
+  lastWaterRemindTime: number;
+  lastBreakRemindTime: number;
+  lastHydrationNotifTime: number;
+  lastBreakNotifTime: number;
+  wellnessRemindersEnabled: boolean;
+  focusModeTotalSeconds: number;
+  workModeTotalSeconds: number;
+  screenSaverSettings: ScreenSaverSettings;
+  deadlineReminderSettings: DeadlineReminderSettings;
+  theme: ThemeMode;
+  visualThemePreset: VisualThemePreset;
+  personalTheme: PersonalThemeSettings;
+  workMode: WorkMode;
+  showLeftSidebar: boolean;
+  showRightSidebar: boolean;
+  showBottomBar: boolean;
+  activeModel: "gemini" | "claude" | "deepseek";
+  selectedMascot: Mascot;
+  hasSeenTutorial: boolean;
+};
+
+const defaultWorkspaceSnapshot = (): WorkspaceSnapshot => ({
+  dailyTasks: [],
+  notes: [],
+  flashCardTopics: [],
+  deadlines: [],
+  calendarActivities: [],
+  timeLogs: [],
+  suggestions: [],
+  actionCards: [],
+  progressPoints: [],
+  focusScore: 0,
+  wellnessActivities: [],
+  lastWaterRemindTime: Date.now(),
+  lastBreakRemindTime: Date.now(),
+  lastHydrationNotifTime: Date.now(),
+  lastBreakNotifTime: Date.now(),
+  wellnessRemindersEnabled: true,
+  focusModeTotalSeconds: 0,
+  workModeTotalSeconds: 0,
+  screenSaverSettings: {
+    enabled: true,
+    message: "Stay focused. You are doing great.",
+    color: "#67e8f9",
+    speedSeconds: 18,
+  },
+  deadlineReminderSettings: {
+    enabled: true,
+    minutesBefore: 60,
+    showOnLogin: true,
+  },
+  theme: "dark",
+  visualThemePreset: "aetheris",
+  personalTheme: {
+    enabled: false,
+    name: "My Theme",
+    textColor: "#e6eef9",
+    fontFamily: "space-grotesk",
+    fontSize: 16,
+  },
+  workMode: "balanced",
+  showLeftSidebar: true,
+  showRightSidebar: false,
+  showBottomBar: false,
+  activeModel: "claude",
+  selectedMascot: "aetheris",
+  hasSeenTutorial: false,
+});
+
+const isCloudEnabled = () => Boolean(supabase);
+
+const toWorkspaceStatePatch = (workspace: Partial<WorkspaceSnapshot> | null | undefined): Partial<AppState> => {
+  const defaults = defaultWorkspaceSnapshot();
+  if (!workspace) return defaults;
+
+  return {
+    dailyTasks: workspace.dailyTasks ?? defaults.dailyTasks,
+    notes: workspace.notes ?? defaults.notes,
+    flashCardTopics: workspace.flashCardTopics ?? defaults.flashCardTopics,
+    deadlines: workspace.deadlines ?? defaults.deadlines,
+    calendarActivities: workspace.calendarActivities ?? defaults.calendarActivities,
+    timeLogs: workspace.timeLogs ?? defaults.timeLogs,
+    suggestions: workspace.suggestions ?? defaults.suggestions,
+    actionCards: workspace.actionCards ?? defaults.actionCards,
+    progressPoints: workspace.progressPoints ?? defaults.progressPoints,
+    focusScore: workspace.focusScore ?? defaults.focusScore,
+    wellnessActivities: workspace.wellnessActivities ?? defaults.wellnessActivities,
+    lastWaterRemindTime: workspace.lastWaterRemindTime ?? defaults.lastWaterRemindTime,
+    lastBreakRemindTime: workspace.lastBreakRemindTime ?? defaults.lastBreakRemindTime,
+    lastHydrationNotifTime: workspace.lastHydrationNotifTime ?? defaults.lastHydrationNotifTime,
+    lastBreakNotifTime: workspace.lastBreakNotifTime ?? defaults.lastBreakNotifTime,
+    wellnessRemindersEnabled: workspace.wellnessRemindersEnabled ?? defaults.wellnessRemindersEnabled,
+    focusModeTotalSeconds: workspace.focusModeTotalSeconds ?? defaults.focusModeTotalSeconds,
+    workModeTotalSeconds: workspace.workModeTotalSeconds ?? defaults.workModeTotalSeconds,
+    screenSaverSettings: workspace.screenSaverSettings ?? defaults.screenSaverSettings,
+    deadlineReminderSettings: workspace.deadlineReminderSettings ?? defaults.deadlineReminderSettings,
+    theme: workspace.theme ?? defaults.theme,
+    visualThemePreset: workspace.visualThemePreset ?? defaults.visualThemePreset,
+    personalTheme: workspace.personalTheme ?? defaults.personalTheme,
+    workMode: workspace.workMode ?? defaults.workMode,
+    showLeftSidebar: workspace.showLeftSidebar ?? defaults.showLeftSidebar,
+    showRightSidebar: workspace.showRightSidebar ?? defaults.showRightSidebar,
+    showBottomBar: workspace.showBottomBar ?? defaults.showBottomBar,
+    activeModel: workspace.activeModel ?? defaults.activeModel,
+    selectedMascot: workspace.selectedMascot ?? defaults.selectedMascot,
+    hasSeenTutorial: workspace.hasSeenTutorial ?? defaults.hasSeenTutorial,
+  };
+};
+
+const buildWorkspaceSnapshot = (state: AppState): WorkspaceSnapshot => ({
+  dailyTasks: state.dailyTasks,
+  notes: state.notes,
+  flashCardTopics: state.flashCardTopics,
+  deadlines: state.deadlines,
+  calendarActivities: state.calendarActivities,
+  timeLogs: state.timeLogs,
+  suggestions: state.suggestions,
+  actionCards: state.actionCards,
+  progressPoints: state.progressPoints,
+  focusScore: state.focusScore,
+  wellnessActivities: state.wellnessActivities,
+  lastWaterRemindTime: state.lastWaterRemindTime,
+  lastBreakRemindTime: state.lastBreakRemindTime,
+  lastHydrationNotifTime: state.lastHydrationNotifTime,
+  lastBreakNotifTime: state.lastBreakNotifTime,
+  wellnessRemindersEnabled: state.wellnessRemindersEnabled,
+  focusModeTotalSeconds: state.focusModeTotalSeconds,
+  workModeTotalSeconds: state.workModeTotalSeconds,
+  screenSaverSettings: state.screenSaverSettings,
+  deadlineReminderSettings: state.deadlineReminderSettings,
+  theme: state.theme,
+  visualThemePreset: state.visualThemePreset,
+  personalTheme: state.personalTheme,
+  workMode: state.workMode,
+  showLeftSidebar: state.showLeftSidebar,
+  showRightSidebar: state.showRightSidebar,
+  showBottomBar: state.showBottomBar,
+  activeModel: state.activeModel,
+  selectedMascot: state.selectedMascot,
+  hasSeenTutorial: state.hasSeenTutorial,
+});
+
+const toUserWorkspaceKey = (userId: string) => `aetheris-workspace-${userId}`;
+
+const saveWorkspaceLocally = (userId: string, workspace: WorkspaceSnapshot) => {
+  localStorage.setItem(toUserWorkspaceKey(userId), JSON.stringify(workspace));
+};
+
+const parseLocalWorkspace = (raw: string | null): Partial<WorkspaceSnapshot> | null => {
+  if (!raw) return null;
+  try {
+    return JSON.parse(raw) as Partial<WorkspaceSnapshot>;
+  } catch {
+    return null;
+  }
+};
+
+let cloudSaveTimeout: ReturnType<typeof setTimeout> | null = null;
+let isHydratingWorkspace = false;
+
+const queueCloudWorkspaceSave = (userId: string, workspace: WorkspaceSnapshot) => {
+  if (!supabase) return;
+
+  if (cloudSaveTimeout) {
+    clearTimeout(cloudSaveTimeout);
+  }
+
+  cloudSaveTimeout = window.setTimeout(async () => {
+    await supabase.from("workspaces").upsert({ user_id: userId, workspace });
+  }, 700);
+};
+
+const resolveEmailForIdentifier = async (identifier: string) => {
+  if (!supabase) return identifier;
+  if (identifier.includes("@")) return identifier;
+
+  const { data, error } = await supabase
+    .from("profiles")
+    .select("email")
+    .eq("username", identifier)
+    .single();
+
+  if (error || !data?.email) {
+    throw new Error("Invalid credentials");
+  }
+
+  return data.email as string;
+};
+
 export const useAppStore = create<AppState>()(
   persist(
     (set, get) => ({
@@ -330,6 +532,64 @@ export const useAppStore = create<AppState>()(
 
       // Actions
       login: async (identifier, password) => {
+        if (isCloudEnabled() && supabase) {
+          if (!identifier || password.length < 6) {
+            throw new Error("Invalid identifier or password");
+          }
+
+          const email = await resolveEmailForIdentifier(identifier.trim());
+          const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
+            email,
+            password,
+          });
+
+          if (authError || !authData.user) {
+            throw new Error(authError?.message ?? "Invalid credentials");
+          }
+
+          const userId = authData.user.id;
+          const { data: profileData } = await supabase
+            .from("profiles")
+            .select("id, email, name, username, nickname, bio, profile_picture")
+            .eq("id", userId)
+            .maybeSingle();
+
+          const cloudUser: User = {
+            id: userId,
+            email: profileData?.email ?? authData.user.email ?? email,
+            name: profileData?.name ?? (authData.user.user_metadata?.name as string) ?? "Aetheris User",
+            username:
+              profileData?.username ??
+              (authData.user.user_metadata?.username as string) ??
+              (email.includes("@") ? email.split("@")[0] : email),
+            nickname:
+              profileData?.nickname ??
+              profileData?.username ??
+              ((authData.user.user_metadata?.nickname as string) || undefined),
+            bio: profileData?.bio ?? undefined,
+            profilePicture: profileData?.profile_picture ?? undefined,
+          };
+
+          const { data: workspaceData } = await supabase
+            .from("workspaces")
+            .select("workspace")
+            .eq("user_id", userId)
+            .maybeSingle();
+
+          const workspace =
+            (workspaceData?.workspace as Partial<WorkspaceSnapshot> | undefined) ??
+            parseLocalWorkspace(localStorage.getItem(toUserWorkspaceKey(userId)));
+
+          isHydratingWorkspace = true;
+          set({
+            isLoggedIn: true,
+            user: cloudUser,
+            ...toWorkspaceStatePatch(workspace),
+          });
+          isHydratingWorkspace = false;
+          return;
+        }
+
         // Simple demo authentication - in production, verify against a backend
         // identifier can be email or username
         if (identifier && password.length >= 6) {
@@ -393,7 +653,7 @@ export const useAppStore = create<AppState>()(
                 },
                 workMode: workspaceData.workMode || "balanced",
                 showLeftSidebar: workspaceData.showLeftSidebar ?? true,
-                showRightSidebar: workspaceData.showRightSidebar ?? true,
+                showRightSidebar: workspaceData.showRightSidebar ?? false,
                 showBottomBar: workspaceData.showBottomBar ?? false,
                 activeModel: workspaceData.activeModel || "claude",
                 selectedMascot: workspaceData.selectedMascot || "aetheris",
@@ -415,6 +675,72 @@ export const useAppStore = create<AppState>()(
       },
 
       register: async (name: string, email: string, username: string, password: string) => {
+        if (isCloudEnabled() && supabase) {
+          if (!name || !email || !username || password.length < 6) {
+            throw new Error("All fields are required and password must be at least 6 characters");
+          }
+
+          const { data: authData, error: authError } = await supabase.auth.signUp({
+            email,
+            password,
+            options: {
+              data: { name, username, nickname: username },
+            },
+          });
+
+          if (authError || !authData.user) {
+            throw new Error(authError?.message ?? "Registration failed");
+          }
+
+          if (!authData.session) {
+            throw new Error(
+              "Supabase email confirmation is enabled. Disable it for now to allow instant register + login."
+            );
+          }
+
+          const userId = authData.user.id;
+          const cloudUser: User = {
+            id: userId,
+            email,
+            name,
+            username,
+            nickname: username,
+          };
+
+          const { error: profileError } = await supabase.from("profiles").upsert({
+            id: userId,
+            email,
+            name,
+            username,
+            nickname: username,
+            bio: null,
+            profile_picture: null,
+          });
+
+          if (profileError) {
+            throw new Error(profileError.message);
+          }
+
+          const emptyWorkspace = defaultWorkspaceSnapshot();
+          const { error: workspaceError } = await supabase
+            .from("workspaces")
+            .upsert({ user_id: userId, workspace: emptyWorkspace });
+
+          if (workspaceError) {
+            throw new Error(workspaceError.message);
+          }
+
+          saveWorkspaceLocally(userId, emptyWorkspace);
+          isHydratingWorkspace = true;
+          set({
+            isLoggedIn: true,
+            user: cloudUser,
+            ...toWorkspaceStatePatch(emptyWorkspace),
+          });
+          isHydratingWorkspace = false;
+          return;
+        }
+
         // Simple demo registration - in production, use a backend
         if (!name || !email || !username || password.length < 6) {
           throw new Error("All fields are required and password must be at least 6 characters");
@@ -471,43 +797,18 @@ export const useAppStore = create<AppState>()(
       
       logout: () => {
         const state = get();
-        
-        // Save current workspace data to user-specific storage before logging out
+        const workspaceData = buildWorkspaceSnapshot(state);
+
         if (state.user) {
-          const userWorkspaceKey = `aetheris-workspace-${state.user.id}`;
-          const workspaceData = {
-            dailyTasks: state.dailyTasks,
-            notes: state.notes,
-            flashCardTopics: state.flashCardTopics,
-            deadlines: state.deadlines,
-            calendarActivities: state.calendarActivities,
-            timeLogs: state.timeLogs,
-            suggestions: state.suggestions,
-            actionCards: state.actionCards,
-            progressPoints: state.progressPoints,
-            focusScore: state.focusScore,
-            wellnessActivities: state.wellnessActivities,
-            lastWaterRemindTime: state.lastWaterRemindTime,
-            lastBreakRemindTime: state.lastBreakRemindTime,
-            lastHydrationNotifTime: state.lastHydrationNotifTime,
-            lastBreakNotifTime: state.lastBreakNotifTime,
-            wellnessRemindersEnabled: state.wellnessRemindersEnabled,
-            focusModeTotalSeconds: state.focusModeTotalSeconds,
-            workModeTotalSeconds: state.workModeTotalSeconds,
-            screenSaverSettings: state.screenSaverSettings,
-            deadlineReminderSettings: state.deadlineReminderSettings,
-            theme: state.theme,
-            visualThemePreset: state.visualThemePreset,
-            personalTheme: state.personalTheme,
-            workMode: state.workMode,
-            showLeftSidebar: state.showLeftSidebar,
-            showRightSidebar: state.showRightSidebar,
-            showBottomBar: state.showBottomBar,
-            activeModel: state.activeModel,
-            selectedMascot: state.selectedMascot,
-            hasSeenTutorial: state.hasSeenTutorial,
-          };
-          localStorage.setItem(userWorkspaceKey, JSON.stringify(workspaceData));
+          saveWorkspaceLocally(state.user.id, workspaceData);
+        }
+
+        if (state.user && isCloudEnabled() && supabase) {
+          const userId = state.user.id;
+          void (async () => {
+            await supabase.from("workspaces").upsert({ user_id: userId, workspace: workspaceData });
+            await supabase.auth.signOut();
+          })();
         }
         
         // Reset to default state and clear user
@@ -1088,39 +1389,11 @@ export const useAppStore = create<AppState>()(
 // Auto-save workspace data to user-specific storage whenever state changes
 useAppStore.subscribe((state) => {
   if (state.user && state.isLoggedIn) {
-    const userWorkspaceKey = `aetheris-workspace-${state.user.id}`;
-    const workspaceData = {
-      dailyTasks: state.dailyTasks,
-      notes: state.notes,
-      flashCardTopics: state.flashCardTopics,
-      deadlines: state.deadlines,
-      calendarActivities: state.calendarActivities,
-      timeLogs: state.timeLogs,
-      suggestions: state.suggestions,
-      actionCards: state.actionCards,
-      progressPoints: state.progressPoints,
-      focusScore: state.focusScore,
-      wellnessActivities: state.wellnessActivities,
-      lastWaterRemindTime: state.lastWaterRemindTime,
-      lastBreakRemindTime: state.lastBreakRemindTime,
-      lastHydrationNotifTime: state.lastHydrationNotifTime,
-      lastBreakNotifTime: state.lastBreakNotifTime,
-      wellnessRemindersEnabled: state.wellnessRemindersEnabled,
-      focusModeTotalSeconds: state.focusModeTotalSeconds,
-      workModeTotalSeconds: state.workModeTotalSeconds,
-      screenSaverSettings: state.screenSaverSettings,
-      deadlineReminderSettings: state.deadlineReminderSettings,
-      theme: state.theme,
-      visualThemePreset: state.visualThemePreset,
-      personalTheme: state.personalTheme,
-      workMode: state.workMode,
-      showLeftSidebar: state.showLeftSidebar,
-      showRightSidebar: state.showRightSidebar,
-      showBottomBar: state.showBottomBar,
-      activeModel: state.activeModel,
-      selectedMascot: state.selectedMascot,
-      hasSeenTutorial: state.hasSeenTutorial,
-    };
-    localStorage.setItem(userWorkspaceKey, JSON.stringify(workspaceData));
+    const workspaceData = buildWorkspaceSnapshot(state);
+    saveWorkspaceLocally(state.user.id, workspaceData);
+
+    if (!isHydratingWorkspace) {
+      queueCloudWorkspaceSave(state.user.id, workspaceData);
+    }
   }
 });
