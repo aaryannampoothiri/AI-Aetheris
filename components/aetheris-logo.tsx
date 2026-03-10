@@ -1,8 +1,14 @@
 "use client";
 
 import Image from "next/image";
+import { CSSProperties } from "react";
 
-export function AetherisLogo({ className = "" }: { className?: string }) {
+type AetherisLogoProps = {
+  className?: string;
+  style?: CSSProperties;
+};
+
+export function AetherisLogo({ className = "", style }: AetherisLogoProps) {
   // Replace 'aetheris-logo.png' with your actual logo filename
   return (
     <Image
@@ -12,6 +18,7 @@ export function AetherisLogo({ className = "" }: { className?: string }) {
       height={160}
       priority
       className={className}
+      style={style}
     />
   );
 }
