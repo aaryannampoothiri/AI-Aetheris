@@ -261,7 +261,7 @@ export default function Home() {
                 {ongoingTasks.slice(0, 6).map((task) => (
                   <div key={task.id} className="rounded-xl border border-white/10 bg-white/10 px-3 py-2">
                     <p className="text-sm text-slate-200">{task.title}</p>
-                    {task.description ? <p className="mt-1 text-xs text-slate-400">{task.description}</p> : null}
+                    {task.details ? <p className="mt-1 text-xs text-slate-400">{task.details}</p> : null}
                   </div>
                 ))}
                 {ongoingTasks.length > 6 ? (
