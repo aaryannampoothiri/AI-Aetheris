@@ -87,7 +87,7 @@ export function FlashCardViewer({ cards, variant = "study", onClose }: FlashCard
       zIndex: 30,
       transition: {
         duration: 0.34,
-        ease: [0.22, 0.61, 0.36, 1],
+        ease: [0.22, 0.61, 0.36, 1] as [number, number, number, number],
       },
     },
     exit: (direction: 1 | -1) => ({
@@ -98,7 +98,7 @@ export function FlashCardViewer({ cards, variant = "study", onClose }: FlashCard
       zIndex: 10,
       transition: {
         duration: 0.24,
-        ease: [0.4, 0, 1, 1],
+        ease: [0.4, 0, 1, 1] as [number, number, number, number],
       },
     }),
   };
