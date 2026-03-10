@@ -6,7 +6,7 @@ import { type ReactNode } from "react";
 
 type GlassCardProps = Omit<HTMLMotionProps<"section">, "children"> & {
   children: ReactNode;
-  glow?: "cyan" | "orange" | "teal" | "purple";
+  glow?: "cyan" | "orange" | "teal" | "purple" | "green";
 };
 
 const glowMap = {
@@ -14,6 +14,7 @@ const glowMap = {
   orange: "from-orange-300/45",
   teal: "from-teal-300/45",
   purple: "from-purple-300/45",
+  green: "from-green-300/45",
 };
 
 export function GlassCard({ className, glow = "cyan", children, ...rest }: GlassCardProps) {
