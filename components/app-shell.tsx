@@ -48,7 +48,6 @@ export function AppShell({ children }: { children: ReactNode }) {
   
   const showLeftSidebar = useAppStore((state) => state.showLeftSidebar);
   const toggleLeftSidebar = useAppStore((state) => state.toggleLeftSidebar);
-  const showRightSidebar = useAppStore((state) => state.showRightSidebar);
   const isFocusMode = useAppStore((state) => state.isFocusMode);
   const setFocusMode = useAppStore((state) => state.setFocusMode);
   const selectedMascot = useAppStore((state) => state.selectedMascot);
@@ -129,7 +128,6 @@ export function AppShell({ children }: { children: ReactNode }) {
   }, [clockNow, workModeStartedAt, workModeTotalSeconds]);
 
   const effectiveShowLeftSidebar = isFocusMode ? false : showLeftSidebar;
-  const effectiveShowRightSidebar = isFocusMode ? false : showRightSidebar;
   const effectiveShowBottomBar = false;
 
   return (
@@ -275,7 +273,6 @@ export function AppShell({ children }: { children: ReactNode }) {
         className="overflow-y-auto p-4 transition-all duration-300"
         style={{
           marginLeft: effectiveShowLeftSidebar ? "16rem" : "0",
-          marginRight: effectiveShowRightSidebar ? "20rem" : "0",
           marginBottom: effectiveShowBottomBar ? "3.5rem" : "0",
           height: `calc(100vh - 80px - ${effectiveShowBottomBar ? "3.5rem" : "0px"})`,
         }}

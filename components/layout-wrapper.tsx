@@ -4,7 +4,6 @@ import { ReactNode } from "react";
 import { usePathname } from "next/navigation";
 import { useAppStore } from "@/lib/app-store";
 import { LeftSidebar } from "./left-sidebar";
-import { RightSidebar } from "./right-sidebar";
 import { AppShell } from "./app-shell";
 import { AnimatedPage } from "./animated-page";
 import { WellnessReminderModal } from "./wellness-reminder-modal";
@@ -25,7 +24,6 @@ export function LayoutWrapper({ children }: { children: ReactNode }) {
   return (
     <>
       <LeftSidebar />
-      <RightSidebar />
       <WellnessReminderModal />
       <MascotDisplay />
       <TutorialOverlay />

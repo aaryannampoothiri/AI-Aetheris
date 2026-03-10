@@ -321,7 +321,7 @@ export const useAppStore = create<AppState>()(
       },
       workMode: "balanced",
       showLeftSidebar: true,
-      showRightSidebar: true,
+      showRightSidebar: false,
       showBottomBar: false,
       activeModel: "claude",
       selectedMascot: "aetheris",
