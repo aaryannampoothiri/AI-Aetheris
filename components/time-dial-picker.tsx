@@ -9,6 +9,8 @@ type TimeDialPickerProps = {
   onClose: () => void;
 };
 
+type Period = "AM" | "PM";
+
 const minuteValues = [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55];
 
 function getPointPosition(index: number, radius: number) {
@@ -19,7 +21,7 @@ function getPointPosition(index: number, radius: number) {
   };
 }
 
-function parseTime(value: string) {
+function parseTime(value: string): { hour12: number; minute: number; period: Period } {
   const match = /^(\d{2}):(\d{2})$/.exec(value);
   if (!match) {
     return { hour12: 12, minute: 0, period: "AM" as const };
@@ -27,13 +29,13 @@ function parseTime(value: string) {
 
   const hour24 = Number(match[1]);
   const minute = Number(match[2]);
-  const period = hour24 >= 12 ? "PM" : "AM";
+  const period: Period = hour24 >= 12 ? "PM" : "AM";
   const hour12 = hour24 % 12 === 0 ? 12 : hour24 % 12;
 
   return { hour12, minute: Math.min(55, Math.max(0, minute - (minute % 5))), period };
 }
 
-function formatTime(hour12: number, minute: number, period: "AM" | "PM") {
+function formatTime(hour12: number, minute: number, period: Period) {
   let hour24 = hour12 % 12;
   if (period === "PM") {
     hour24 += 12;
@@ -45,7 +47,7 @@ export function TimeDialPicker({ value, onChange, isOpen, onClose }: TimeDialPic
   const parsed = useMemo(() => parseTime(value), [value]);
   const [selectedHour, setSelectedHour] = useState(parsed.hour12);
   const [selectedMinute, setSelectedMinute] = useState(parsed.minute);
-  const [period, setPeriod] = useState<"AM" | "PM">(parsed.period);
+  const [period, setPeriod] = useState<Period>(parsed.period);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -56,7 +58,7 @@ export function TimeDialPicker({ value, onChange, isOpen, onClose }: TimeDialPic
 
   if (!isOpen) return null;
 
-  const applySelection = (hour12: number, minute: number, nextPeriod: "AM" | "PM", close = false) => {
+  const applySelection = (hour12: number, minute: number, nextPeriod: Period, close = false) => {
     onChange(formatTime(hour12, minute, nextPeriod));
     if (close) {
       onClose();
