@@ -436,18 +436,19 @@ const parseLocalWorkspace = (raw: string | null): Partial<WorkspaceSnapshot> | n
   }
 };
 
-let cloudSaveTimeout: ReturnType<typeof window.setTimeout> | null = null;
+let cloudSaveTimeout: ReturnType<typeof setTimeout> | null = null;
 let isHydratingWorkspace = false;
 
 const queueCloudWorkspaceSave = (userId: string, workspace: WorkspaceSnapshot) => {
-  if (!supabase) return;
+  const client = supabase;
+  if (!client) return;
 
   if (cloudSaveTimeout) {
     clearTimeout(cloudSaveTimeout);
   }
 
-  cloudSaveTimeout = window.setTimeout(async () => {
-    await supabase.from("workspaces").upsert({ user_id: userId, workspace });
+  cloudSaveTimeout = setTimeout(async () => {
+    await client.from("workspaces").upsert({ user_id: userId, workspace });
   }, 700);
 };
 
